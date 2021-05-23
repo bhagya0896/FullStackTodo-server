@@ -22,6 +22,9 @@ const objectId = mongodb.ObjectID
 
 const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017'
 
+app.get('/',(req,res)=>
+        {
+res.send("Welcome to my app!!!")})
 //register route
 app.post ('/register',async(req,res)=>
 {
