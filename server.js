@@ -22,9 +22,11 @@ const objectId = mongodb.ObjectID
 
 const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017'
 
-app.get('/',(req,res)=>
-        {
-res.send("Welcome to my app!!!")})
+
+app.get("/",(req,res)=>{
+  res.send("Welcome to My App")
+})
+
 //register route
 app.post ('/register',async(req,res)=>
 {
@@ -38,23 +40,19 @@ app.post ('/register',async(req,res)=>
          //validation 
        
          if ( !userName || !password )
-           return res.status(400).json({ message: "Please enter all required fields." });
+           return res.send({ message: "Please enter all required fields." });
           
          if (password.length < 6)
-           return res.status(400).json({
+           return res.send({
              message: "Please enter a password of at least 6 characters.",
            });
-     
-       
            let client = await mongoClient.connect(dbUrl);
            let db = client.db('tododb');
-           console.log("connected to db")
-     
          let existingUser = await db.collection('users').findOne({"userName" : userName});
         
          if(existingUser)
          {
-             return res.status(400).json({
+             return res.send({
               message: "An account with this email already exists, kindly login!!",
                })
          }
@@ -73,7 +71,7 @@ app.post ('/register',async(req,res)=>
                  
                 if(newUser){ 
          
-               res.status(200).json({message:'user registered successfully'});
+               res.send({message:' Registered successfully.'});
               
                  }
          }
@@ -112,16 +110,16 @@ app.post('/login',   async (req, res) => {
 
    let token = await JWT.sign({ id: user._id,userName: user.userName },JWT_SECRET );
      console.log(`login :::: ${token}`)
-   return res.send({message:"login successful",token : token});
+   return res.send({message:'Login successful!!',token : token});
   
         }
   
         else {
-          res.send({ message: 'login unsuccessful!!!' })
+          res.send({ message: 'Login unsuccessful !!' })
         }
       }
       else{
-          res.send({message:"User Does Not Exists "});// 401 unauthorized
+          res.send({message:"User Does Not Exists, kindly register. "});// 401 unauthorized
       }
         client.close();
       }catch (error) {
@@ -145,11 +143,11 @@ app.post('/login',   async (req, res) => {
                           req.body.userName=decode.userName;       
                           next();
                       }else{
-                          res.status(401).json({message:"invalid token"});
+                          res.send({message:"Invalid token."});
                       }
                   });
           }else{
-              res.status(401).json({message:"No token"})
+              res.send({message:"No token."})
           }
     }
     
@@ -164,7 +162,7 @@ app.get('/todos' , auth,async (req,res)=>
         const todos =  await db.collection('todos').find({userName:req.body.userName}).toArray();
         if(todos)
         {
-          res.status(200).json(todos);
+          res.send(todos);
           console.log(`entered todos : ${todos}`);
         }
  
@@ -173,7 +171,7 @@ app.get('/todos' , auth,async (req,res)=>
        }catch(error)
        {
            console.log(error)
-           res.status(500).json({"message" : "error occured while getting todos"});
+           res.send({message : "Error occured while fetching todos."});
            client.close();
        }
    }
@@ -191,7 +189,7 @@ app.post('/add-todo' , auth,async (req,res)=>
         let addTodo = await db.collection('todos').insertOne(req.body);
         if(addTodo)
         {
-          res.status(200).json({"message":"todo added successfully"});
+          res.send({message:"Todo added successfully."});
           console.log(`Added todos : ${addTodo}`)
         }
         
@@ -200,7 +198,7 @@ app.post('/add-todo' , auth,async (req,res)=>
        }catch(error)
        {
            console.log(error)
-           res.status(500).json({"message" : "error occured while adding todo"});
+           res.send({message : "Error occured while adding todo."});
            client.close();
        }
    }
@@ -220,7 +218,7 @@ app.put('/update-todo/:id' ,auth, async (req,res)=>
           console.log(updateTodo)
           if(updateTodo)
           {
-            res.status(200).json({"message":"todo updated successfully"});
+            res.send({message:"Todo updated successfully."});
             console.log(`Updated todos : ${updateTodo}`);
           }
        
@@ -228,7 +226,7 @@ app.put('/update-todo/:id' ,auth, async (req,res)=>
        }catch(error)
        {
            console.log(error)
-           res.status(500).json({"message" : "error occured while updating todo"});
+           res.send({message : "Error occured while updating todo."});
            client.close();
        }
    }
@@ -246,14 +244,14 @@ app.delete('/delete-todo/:id' , auth,async (req,res)=>
         let deleteTodo = await db.collection('todos').deleteOne({"_id":objectId(id)});
         if(deleteTodo)
         {
-          res.status(200).json({"message":"todo deleted successfully"});
+          res.send({message:"Todo deleted successfully."});
           console.log(" todo deleted successfully ");
         }
        client.close();
        }catch(error)
        {
            console.log(error)
-           res.status(500).json({"message" : "error occured while deleting todo "});
+           res.send({message : "error occured while deleting todo "});
            client.close();
        }
    }
